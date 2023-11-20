@@ -13,11 +13,15 @@ public class CarController : MonoBehaviour
 
     private float horizontalInput;
     private float verticalInput;
+    private bool isBraking;
 
     private void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
+
+        // Check for braking condition
+        isBraking = Input.GetKey(KeyCode.Space);
     }
 
     private void FixedUpdate()
@@ -27,7 +31,7 @@ public class CarController : MonoBehaviour
 
         ApplyForceToWheels(movement, rotation);
 
-        // Check for drifting condition
+        // Apply drifting if the car is drifting
         if (IsDrifting())
         {
             ApplyDrift();
@@ -38,9 +42,9 @@ public class CarController : MonoBehaviour
     {
         foreach (WheelCollider wheel in wheelColliders)
         {
-            if (Mathf.Abs(movement) < 0.1f)
+            if (isBraking)
             {
-                // If the car is nearly stopped, apply brakes to bring it to a halt
+                // Apply brakes if braking condition is true
                 wheel.brakeTorque = brakeTorque;
                 wheel.motorTorque = 0.0f;
             }
@@ -58,7 +62,7 @@ public class CarController : MonoBehaviour
     private bool IsDrifting()
     {
         // Check for conditions to start drifting
-        return Input.GetKey(KeyCode.Space) && Mathf.Abs(horizontalInput) > 0.8f;
+        return isBraking && Mathf.Abs(horizontalInput) > 0.8f;
     }
 
     private void ApplyDrift()
@@ -76,4 +80,3 @@ public class CarController : MonoBehaviour
         }
     }
 }
-

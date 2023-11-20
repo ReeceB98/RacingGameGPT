@@ -1539,6 +1539,8 @@ MonoBehaviour:
   wheelColliders:
   - {fileID: 7161689254879554626}
   - {fileID: 314971171922312869}
+  accelerationTorque: 5000
+  brakeTorque: 5000
   driftTorque: 10
   maxDriftAngle: 20
 --- !u!146 &7887936941974985008
