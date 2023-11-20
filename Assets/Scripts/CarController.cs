@@ -4,13 +4,14 @@ public class CarController : MonoBehaviour
 {
     public float speed = 10.0f;
     public float rotationSpeed = 100.0f;
-    public WheelCollider[] wheelColliders; // Reference to the Wheel Colliders
-
-    public float accelerationTorque = 5000.0f; // Adjust this value to control acceleration
-    public float brakeTorque = 5000.0f; // Adjust this value to control braking
+    public WheelCollider[] wheelColliders;
 
     private float horizontalInput;
     private float verticalInput;
+
+    // Drift parameters
+    public float driftTorque = 2000f;
+    public float maxDriftAngle = 45f;
 
     private void Update()
     {
@@ -23,21 +24,12 @@ public class CarController : MonoBehaviour
         float movement = verticalInput * speed;
         float rotation = horizontalInput * rotationSpeed;
 
-        // Apply forces to move and rotate the car
         ApplyForceToWheels(movement, rotation);
 
-        // Apply brakes or reverse when the player wants to stop or go backward
-        if (movement > 0)
+        // Check for drifting condition
+        if (IsDrifting())
         {
-            ApplyAcceleration(movement);
-        }
-        else if (movement < 0)
-        {
-            ApplyReverse(movement);
-        }
-        else
-        {
-            ApplyBrakes();
+            ApplyDrift();
         }
     }
 
@@ -45,36 +37,32 @@ public class CarController : MonoBehaviour
     {
         foreach (WheelCollider wheel in wheelColliders)
         {
-            wheel.motorTorque = movement * accelerationTorque;
+            wheel.motorTorque = movement;
             wheel.steerAngle = rotation;
         }
     }
 
-    private void ApplyAcceleration(float movement)
+    private bool IsDrifting()
     {
-        foreach (WheelCollider wheel in wheelColliders)
-        {
-            wheel.motorTorque = movement * accelerationTorque;
-            wheel.brakeTorque = 0.0f;
-        }
+        // Check for conditions to start drifting
+        // For example, you might check if the player is holding a specific input key
+        // or if the car is turning sharply.
+        return Input.GetKey(KeyCode.Space) && Mathf.Abs(horizontalInput) > 0.8f;
     }
 
-    private void ApplyReverse(float movement)
+    private void ApplyDrift()
     {
+        // Apply a torque to simulate drifting
         foreach (WheelCollider wheel in wheelColliders)
         {
-            // Apply negative motor torque to make the car move backward
-            wheel.motorTorque = movement * accelerationTorque;
-            wheel.brakeTorque = 0.0f;
+            wheel.motorTorque = 0f;
+            wheel.brakeTorque = driftTorque;
         }
-    }
 
-    private void ApplyBrakes()
-    {
-        foreach (WheelCollider wheel in wheelColliders)
-        {
-            wheel.motorTorque = 0.0f;
-            wheel.brakeTorque = brakeTorque;
-        }
+        // Rotate the car's Rigidbody to create a visual effect
+        float rotationAmount = maxDriftAngle * horizontalInput;
+        Quaternion rotation = Quaternion.Euler(0f, rotationAmount, 0f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.fixedDeltaTime * rotationSpeed);
     }
 }
+

@@ -1534,13 +1534,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d205cba2850064040aa976f524f2f3d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 100
+  speed: 1000
   rotationSpeed: 20
   wheelColliders:
   - {fileID: 7161689254879554626}
   - {fileID: 314971171922312869}
-  accelerationTorque: 5
-  brakeTorque: 5
+  driftTorque: 10
+  maxDriftAngle: 20
 --- !u!146 &7887936941974985008
 WheelCollider:
   m_ObjectHideFlags: 0
