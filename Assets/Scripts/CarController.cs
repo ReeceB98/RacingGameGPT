@@ -6,12 +6,13 @@ public class CarController : MonoBehaviour
     public float rotationSpeed = 100.0f;
     public WheelCollider[] wheelColliders;
 
+    public float accelerationTorque = 5000.0f; // Adjust this value to control acceleration
+    public float brakeTorque = 5000.0f; // Adjust this value to control braking
+    public float driftTorque = 2000.0f; // Adjust this value to control drifting
+    public float maxDriftAngle = 45.0f; // Maximum angle for drifting
+
     private float horizontalInput;
     private float verticalInput;
-
-    // Drift parameters
-    public float driftTorque = 2000f;
-    public float maxDriftAngle = 45f;
 
     private void Update()
     {
@@ -37,7 +38,19 @@ public class CarController : MonoBehaviour
     {
         foreach (WheelCollider wheel in wheelColliders)
         {
-            wheel.motorTorque = movement;
+            if (Mathf.Abs(movement) < 0.1f)
+            {
+                // If the car is nearly stopped, apply brakes to bring it to a halt
+                wheel.brakeTorque = brakeTorque;
+                wheel.motorTorque = 0.0f;
+            }
+            else
+            {
+                // If there's movement, release brakes and apply motor torque
+                wheel.brakeTorque = 0.0f;
+                wheel.motorTorque = movement * accelerationTorque;
+            }
+
             wheel.steerAngle = rotation;
         }
     }
@@ -45,24 +58,22 @@ public class CarController : MonoBehaviour
     private bool IsDrifting()
     {
         // Check for conditions to start drifting
-        // For example, you might check if the player is holding a specific input key
-        // or if the car is turning sharply.
         return Input.GetKey(KeyCode.Space) && Mathf.Abs(horizontalInput) > 0.8f;
     }
 
     private void ApplyDrift()
     {
-        // Apply a torque to simulate drifting
         foreach (WheelCollider wheel in wheelColliders)
         {
-            wheel.motorTorque = 0f;
+            // Apply a torque to simulate drifting
+            wheel.motorTorque = 0.0f;
             wheel.brakeTorque = driftTorque;
-        }
 
-        // Rotate the car's Rigidbody to create a visual effect
-        float rotationAmount = maxDriftAngle * horizontalInput;
-        Quaternion rotation = Quaternion.Euler(0f, rotationAmount, 0f);
-        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.fixedDeltaTime * rotationSpeed);
+            // Rotate the car's Rigidbody to create a visual effect
+            float rotationAmount = maxDriftAngle * horizontalInput;
+            Quaternion rotation = Quaternion.Euler(0.0f, rotationAmount, 0.0f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.fixedDeltaTime * rotationSpeed);
+        }
     }
 }
 
